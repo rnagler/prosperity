@@ -1,5 +1,5 @@
 # ~rnaR/prosperityShiny
-# Version 4 2022-01-30
+# Version 4 2022-02-09
 ## server.R ##
 library(shiny)
 library(shinydashboard)
@@ -13,7 +13,7 @@ library(ineq)
 message(glue("server start for all sessions, Time: {Sys.time()}"))
 
 # global constants
-anzSpieler <- 100
+anzSpieler <- 1000
 anzWeek <- 53
 randNormMean <- 1.03
 randNormSd <- 0.2
@@ -74,16 +74,16 @@ server <- function(input, output, session) {
     # p*100 percent have L(p)*100 percent of x.
 
     # anschauliche scalare
-    anteilReichsterAnf <<- 1 - lorenzAnf$L[100]
-    anteilReichste10Anf <<- 1 - lorenzAnf$L[91]
-    anteilAermste50Anf <<- lorenzAnf$L[51]
-    anteilAermste10Anf <<- lorenzAnf$L[11]
+    anteilReichsterAnf <<- 1 - lorenzAnf$L[anzSpieler]
+    anteilReichste10Anf <<- 1 - lorenzAnf$L[anzSpieler*0.9 +1]
+    anteilAermste50Anf <<- lorenzAnf$L[anzSpieler*0.5 +1]
+    anteilAermste10Anf <<- lorenzAnf$L[anzSpieler*0.1 +1]
     anteilAermsterAnf <<- lorenzAnf$L[2]
     
-    anteilReichsterEnd <<- 1 - lorenzEnd$L[100]
-    anteilReichste10End <<- 1 - lorenzEnd$L[91]
-    anteilAermste50End <<- lorenzEnd$L[51]
-    anteilAermste10End <<- lorenzEnd$L[11]
+    anteilReichsterEnd <<- 1 - lorenzEnd$L[anzSpieler]
+    anteilReichste10End <<- 1 - lorenzEnd$L[anzSpieler*0.9 +1]
+    anteilAermste50End <<- lorenzEnd$L[anzSpieler*0.5 +1]
+    anteilAermste10End <<- lorenzEnd$L[anzSpieler*0.1 +1]
     anteilAermsterEnd <<- lorenzEnd$L[2]
 
     rechneUmv()    # hier wird umverteilt und alle umv Werte errechnet
@@ -176,10 +176,10 @@ server <- function(input, output, session) {
     giniUmv <<- Gini(nachSteuern, corr = FALSE, na.rm = TRUE)
     # compute lorenz
     lorenzUmv <<- Lc(nachSteuern)
-    anteilReichsterUmv <<- 1 - lorenzUmv$L[100]
-    anteilReichste10Umv <<- 1 - lorenzUmv$L[91]
-    anteilAermste50Umv <<- lorenzUmv$L[51]
-    anteilAermste10Umv <<- lorenzUmv$L[11]
+    anteilReichsterUmv <<- 1 - lorenzUmv$L[anzSpieler]
+    anteilReichste10Umv <<- 1 - lorenzUmv$L[anzSpieler*0.9 +1]
+    anteilAermste50Umv <<- lorenzUmv$L[anzSpieler*0.5 +1]
+    anteilAermste10Umv <<- lorenzUmv$L[anzSpieler*0.1 +1]
     anteilAermsterUmv <<- lorenzUmv$L[2]
 #    message(glue("rechneUmv end, giniUmv: {giniUmv}"))
   }# end rechneUmv
@@ -227,9 +227,9 @@ server <- function(input, output, session) {
   fTabAnf <- function(gini) {
     tAnf <- c(
       "Richest person owns: " = fmtProz(rv$anteilReichsterAnf),
-      "Richest 10 persons own: " = fmtProz(rv$anteilReichste10Anf),
-      "Poorest 50 persons own: " = fmtProz(rv$anteilAermste50Anf),
-      "Poorest 10 persons own: " = fmtProz(rv$anteilAermste10Anf),
+      "Richest 10% own: " = fmtProz(rv$anteilReichste10Anf),
+      "Poorest 50% own: " = fmtProz(rv$anteilAermste50Anf),
+      "Poorest 10% own: " = fmtProz(rv$anteilAermste10Anf),
       "Poorest person owns: " = fmtProz(rv$anteilAermsterAnf),
       "Gini coefficient: " = fmtZahl(rv$giniAnf)
     )
@@ -239,9 +239,9 @@ server <- function(input, output, session) {
   fTabEnd <- function(gini) {
     tEnd <- c(
       "Richest person owns: " = fmtProz(rv$anteilReichsterEnd),
-      "Richest 10 persons own: " = fmtProz(rv$anteilReichste10End),
-      "Poorest 50 persons own: " = fmtProz(rv$anteilAermste50End),
-      "Poorest 10 persons own: " = fmtProz(rv$anteilAermste10End),
+      "Richest 10% own: " = fmtProz(rv$anteilReichste10End),
+      "Poorest 50% own: " = fmtProz(rv$anteilAermste50End),
+      "Poorest 10% own: " = fmtProz(rv$anteilAermste10End),
       "Poorest person owns: " = fmtProz(rv$anteilAermsterEnd),
       "Gini coefficient: " = fmtZahl(rv$giniEnd)
     )
@@ -251,9 +251,9 @@ server <- function(input, output, session) {
   fTabUmv <- function(gini) {
     tUmv <- c(
       "Richest person owns: " = fmtProz(rv$anteilReichsterUmv),
-      "Richest 10 persons own: " = fmtProz(rv$anteilReichste10Umv),
-      "Poorest 50 persons own: " = fmtProz(rv$anteilAermste50Umv),
-      "Poorest 10 persons own: " = fmtProz(rv$anteilAermste10Umv),
+      "Richest 10% own: " = fmtProz(rv$anteilReichste10Umv),
+      "Poorest 50% own: " = fmtProz(rv$anteilAermste50Umv),
+      "Poorest 10% own: " = fmtProz(rv$anteilAermste10Umv),
       "Poorest person owns: " = fmtProz(rv$anteilAermsterUmv),
       "Gini coefficient: " = fmtZahl(rv$giniUmv)
     )
@@ -487,7 +487,7 @@ observeEvent(input$sliderStartVermoeg, {
       scale_x_continuous(labels = scales::dollar) +
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth at the beginning of the current year")+ 
-      lims(y = c(0,100))+
+      lims(y = c(0,anzSpieler))+
       stat_bin(bins=10, geom="text", colour="red", size=6.0,
                aes(label=..count..), vjust=-0.2 )
   })
@@ -498,7 +498,7 @@ observeEvent(input$sliderStartVermoeg, {
       scale_x_continuous(labels = scales::dollar) +
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth at the end of the current year without redistribution")+ 
-      lims(y = c(0,100))+
+      lims(y = c(0,anzSpieler))+
       stat_bin(bins=10, geom="text", colour="red", size=6.0,
         aes(label=..count..), vjust=-0.2 )
   })
@@ -509,7 +509,7 @@ observeEvent(input$sliderStartVermoeg, {
       scale_x_continuous(labels = scales::dollar) +
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Wealth at the end of the current year")+ 
-      lims(y = c(0,100))+
+      lims(y = c(0,anzSpieler))+
       stat_bin(bins=10, geom="text", colour="red", size=6.0,
                aes(label=..count..), vjust=-0.2 )
   })
@@ -520,7 +520,7 @@ observeEvent(input$sliderStartVermoeg, {
       scale_x_continuous(labels = scales::dollar) +
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth after redistribution")+ 
-      lims(y = c(0,100))+
+      lims(y = c(0,anzSpieler))+
       stat_bin(bins=10, geom="text", colour="red", size=6.0,
                aes(label=..count..), vjust=-0.2 )
   })

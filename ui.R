@@ -1,5 +1,5 @@
 # ~rnaR/prosperityShiny
-# Version 4 2022-01-30
+# Version 4 2022-02-09
 ## ui.R ##
 library(shiny)
 library(shinydashboard)
@@ -50,10 +50,10 @@ ui <- dashboardPage(
               tags$li("You're trying out what we could do about it,"), 
               tags$li("You understand the underlying causes and why this is difficult to accept.")
             ),
-            "In this simulation you will observe how 100 people experience a year. They all start with equal wealth. Every week their wealth changes as a result of randomly successful money transactions: they receive interest on their savings, invest in shares or pay back loans. No one uses any dishonest tricks. In contrast to reality, everyone has the same opportunities here. Some are just luckier, some less. But something surprising happens.",
+            "In this simulation you will observe how 1000 people experience a year. They all start with equal wealth. Every week their wealth changes as a result of randomly successful money transactions: they receive interest on their savings, invest in shares or pay back loans. No one uses any dishonest tricks. In contrast to reality, everyone has the same opportunities here. Some are just luckier, some less. But something surprising happens.",
             br(),"You can find out more in three steps, but with increasing effort:", 
             tags$ol(
-              tags$li(tags$b("Simple:"),em(" You need only 2 minutes.")," Intuitively, you assume that wealth is distributed fairly. Check your assumptions: On the right you can see a histogram about wealth distribution. It documents how many of the 100 people are in which asset class after one year. The bar on the far left and the red number above shows how many people are in the poorest class, the bar on the far right shows the number of people who belong to the richest class. Compare the numbers of the poorest with the richest. What do you notice? Did you expect this distribution of wealth? Maybe that was a coincidence?",
+              tags$li(tags$b("Simple:"),em(" You need only 2 minutes.")," Intuitively, you assume that wealth is distributed fairly. Check your assumptions: On the right you can see a histogram about wealth distribution. It documents how many of the 1000 people are in which asset class after one year. The bar on the far left and the red number above shows how many people are in the poorest class, the bar on the far right shows the number of people who belong to the richest class. Compare the numbers of the poorest with the richest. What do you notice? Did you expect this distribution of wealth? Maybe that was a coincidence?",
                       "Press the gray button ", em("Restart"), " at the bottom of the menu to the left and simulate another year. Has the distribution changed significantly? Would you have expected fairer distributions? You can try as many times as you like."), 
               tags$li(tags$b("Advanced:"),em(" You will use approx. 15 minutes.")," Once you realize that wealth automatically moves unevenly, you might want to try ways to mitigate this trend. One possibility would be redistribution through taxation of high wealth. For more information read the menu page ", em("Instructions,"), " try it yourself in the menu ", em("Simulation,"), " and assess the resulting wealth differences in the menu ", em("Inequality.")), 
               tags$li(tags$b("Professional:"),em(" You will spend about 30 minutes.")," It is difficult for us to understand why inequality arises automatically. Because what we have experienced here speaks against our intuition, against our education to asses our chances by computing ensemble averages, and against traditional economic theories. If this confuses you and you want to learn a little more, check out the menu page", em("Ergodicity"), " closer and experiment with exponential and additive growth with different parameters in the menu ", em("Parameter."))
@@ -70,7 +70,7 @@ ui <- dashboardPage(
               tags$li(em("Functionality"), " explains how our simulation works in detail."),
               tags$li(em("Ergodicity"), " describes the implications of the underlying mathematical property."),
               tags$li(em("Parameter"), " here you can change some parameters of this simulation yourself."),
-              tags$li(em("Imprint"), " shows you required legal stuff and a nice fitting song.")
+              tags$li(em("Imprint"), " shows you required legal stuff, a nice fitting song and an introductory fairy tale.")
             ),
             "Below the menu you will find 2 buttons:",
             tags$ul(
@@ -248,13 +248,13 @@ tabItem(tabName = "funktTab",
             title = strong("Functionality"),
             width=9,
             #                  h2("Wie funktioniert dieses Modell?" ),
-            "At Start or Restart all 100 people get the same starting wealth at the beginning of the year. They change it every week through financial transactions.",
+            "At Start or Restart all 1000 persons get the same starting wealth at the beginning of the year. They change it every week through financial transactions.",
             br(), "How is each individual transaction simulated? Our economic life is strongly determined by exponential growth. The following applies to capital-oriented transactions: ",
             br(), code("new wealth = old wealth * multiplicative factor"), ". In reality, the multiplicative factor is an interest gain, rental income or investment gain that the old wealth is multiplied by. In any case, the amount of the new wealth depends heavily on the amount of the old wealth. In this model, we use normally distributed random numbers with a preset mean = 1.03 and standard deviation = 0.2 as the multiplicative factor.",
             br(), "In addition, there is also an additive growth that arises from employment wages, pensions or rent payments by the little people. This growth does not depend on their current amount of wealth. So the following applies here: ",code("new wealth = old wealth + additive factor"), 
             ". In our model, we use normally distributed random numbers with a preset mean = 0.03 and standard deviation = 0.2 as the additive factor.",
             br(), "With these values we set a slightly positive but varying growth. You can adjust these parameters as well as the starting wealth with the corresponding sliders on the menu page ", em("Parameter."), " There you can also decide whether you want to simulate exponential or additive growth or both types of growth in the same time.",
-            br(), "With the random numbers parameterized as described, we simulate the change in wealth for each of the 100 people for each week of the current year. Logically, each individual wealth at the end of the year will be disparate. That's not surprising, some people just have better luck with their financial decisions. Therefore, we expect people to be in different asset classes by the end of the year.",
+            br(), "With the random numbers parameterized as described, we simulate the change in wealth for each of the 1000 persons for each week of the current year. Logically, each individual wealth at the end of the year will be disparate. That's not surprising, some people just have better luck with their financial decisions. Therefore, we expect people to be in different asset classes by the end of the year.",
             "But we would expect balanced histograms on the menu page ", em("Simulation"), " with approximately equal numbers of people in each wealth classes. Surprisingly, however, we observe a skewed unequal distribution when - as in reality - exponential growth is involved: ",
             strong("Few people have gotten rich and most are in the lowest wealth class."),
             br(), br(), "The menu page ", em("Inequality "), "also makes this clear.",
@@ -374,7 +374,7 @@ tabItem(tabName = "parameterTab",
                   title = "Leverage",
                   width = 6,
                   helpText(
-                    "This slider controls what percentage of his wealth a person uses in all transactions. Default set to 100%."
+                    "This slider controls what percentage of his wealth a person uses in all transactions. Default set to 100%. Above 100% means additional borrowing. Below 0% means Short, playing the role of the bank."
                   ),
                   sliderInput("sliderLeverage", "Leverage:", -100, 200, 100)
                ),
@@ -391,7 +391,7 @@ tabItem(tabName = "impressumTab",
         fluidRow(
           box(
             title = "Imprint:",
-            width = 6,
+            width = 4,
             "This website is provided by:",
             br(), "Information Design Institute, 120 Hoetzendorfstrasse,",
             "A-2231 Strasshof, Austria / Europe,",
@@ -402,12 +402,10 @@ tabItem(tabName = "impressumTab",
             br(), br(), "This website may contain links to other sites. We are not responsible for linked content.",
             br(), br(), "Developed in Rstudio V4.0+ with library 'shinydashboard'.",
             br(), "Open Sourcecode public available at:",
-            a(href = "https://github.com/rnagler/prosperity/", "https://github.com/rnagler/prosperity/", target="_blank")
-          ),
-          box(
-            title = "Nice Song, appropriate to the topic, to play while viewing this website",
-            width = 6,
-            "Everybody Knows, Leonard Cohen, 1988",
+            a(href = "https://github.com/rnagler/prosperity/", "https://github.com/rnagler/prosperity/", target="_blank"),
+            hr(),
+            br(), h4("Nice Song, appropriate to the topic:"),
+            "Everybody Knows, Leonard Cohen, 1988 (to play while viewing this website)",
             br(), a(href = "https://www.youtube.com/watch?v=Lin-a2lTelg", "https://www.youtube.com/watch?v=Lin-a2lTelg", target="_blank"),
             br(), br(), "Everybody knows that the dice are loaded",
             br(), "    Everybody rolls with their fingers crossed",
@@ -417,6 +415,28 @@ tabItem(tabName = "impressumTab",
             br(), "    The poor stay poor, the rich get rich",
             br(), "    That's how it goes",
             br(), "    Everybody knows..."
+          ),
+          box(
+            title = "Fairy Tale: Island of the Blessed, an easy Introduction into Redistribution",
+            width = 8,
+            "Once upon a time a stranger sails through unknown dangerous seas. His boat capsizes in a terrible storm. But he is lucky and is washed up on the beach of the Island of the Blessed, completely exhausted.",
+            br(), "On this beautiful island 1000 islanders live in perfect peace. Everyone is remarkably happy and content. Extremely helpful, they take the stranded with them. When he regaines his strength, they tell him their story:",
+            br(), "They all have the same wealth and put their money to work. They invest it in the beautiful landscape, grow wonderful fruits on fertile soil and breed strong animals that they sell to their fellows. ",
+            "Some put their money in savings accounts with great interest rates. On this island of the blessed, no one wants to take advantage of the other or even cheat.",
+            br(), "But no matter how fair and honest they are to each other, it happens again and again that very few of them become much richer and most of them have nothing left. However, they have found a simple solution to this inexplicable process:",
+            br(), "At the end of a year, they throw a large part of all wealth into one heap and distribute it again fairly to everyone. They call it 'redistribution'. The stranded man wonders about this unusual custom and asks how they came up with this strange idea.",
+            br(), "They explain that in ancient times a prophet landed with them and recommended this procedure as enormously important for their inner peace. The stranded man dimly remembers that he had learned something similar at school: in many ancient cultures it was customary to regularly compensate for inequalities that had arisen, names such as 'symposium' or 'jubilee' appear in his memory.",
+            br(), "And indeed, our stranded man experiences the peace, calm, and poise of the islanders as evidence of the powerful effectiveness of this strange redistribution. He thinks: 'It's really like being on an Island of the Blessed here, very different from my home country, where greed, hectic and resentment rule.'",
+            "If he were ever lucky enough to return to his homeland, he would definitely recommend a similar course of action to his officials.",
+            br(), "After a few happy years, which he was allowed to spend on the island of the blessed, one day a silver boat appeared on the horizon, which finally took him on board and, after a long journey, brought him back to his home country.",
+            br(), "On the one hand he is happy to be home again, on the other hand he is appalled at how the situation in his country has deteriorated: Many people are completely impoverished, including his brothers, sisters and friends. He also wonders about high walls with many guards in places, with which a few rich want to protect themselves out of fear of the poor, and the many heavily armed police officers who fearfully have to keep the wailing poor from acts of desperation.",
+            br(), "So he seeks an audience with his officials. When he is finally admitted, he tells them about his experiences on the Island of the Blessed and proposes this regular redistribution to regain inner peace. But then the representatives of the people burst out laughing in despair. They say that such a thing is completely impossible with them. The people they represent admire the rich and adore them particularly intensely. Many poor people, in their delusion, believe that wealth was sacrosanct.",
+            "You can't take anything away from anyone. So much do the poor desire to be like the rich that they reject any redistribution as unthinkable and even sinful.",
+            br(), "More and more people are falling into abject poverty. Some of these unfortunates attempt by force to snatch property from others. Unfortunately, most of them are poor like themselves, since the rich are out of reach for them in their secure castles behind the high walls. But the rich are getting greedier. They try to accumulate even more wealth through dishonest machinations. ",
+            "They demand higher and higher rents and interest from the poor, pay lower and lower wages, threaten some officials to gain even more advantages. Mighty rich even bribe legislators into passing these laws, allowing them to further exploit the poor.",
+            br(), "The rich are increasingly succeeding in presenting wealth as sacred and inequality as natural and willed by God. That is why no representative of the people dares to courageously take suitable measures against the ever increasing inequality.",
+            "That's why you shouldn't take anything away from anyone. So much do the poor desire to be like the rich that they reject any redistribution as unthinkable and even sinful.",
+            br(), "And so it finally comes to a terrible civil war in which all the rich and many poor lose their lives. And if the few survivors haven't already died, then they're still alive today - but only with regular redistribution, like on the Island of the Blessed."
           )
         ))
 
