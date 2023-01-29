@@ -1,5 +1,5 @@
 # ~rnaR/prosperityShiny
-# Version 4 2022-02-09
+# Version 6 2023-01-29 eng
 ## server.R ##
 library(shiny)
 library(shinydashboard)
@@ -21,8 +21,8 @@ randAddNormMean <- 0.03
 randAddNormSd <- 0.2
 startKap <- 1.0
 leverage <- 1.0
-obergrenzeProzent <- 50.0
-steuerProzent <- 50.0
+obergrenzeProzent <- 80.0
+steuerProzent <- 80.0
 ## end statements server run once
 message(glue("entering server function"))
 
@@ -59,7 +59,11 @@ server <- function(input, output, session) {
     lastProzAnteil <<- lastWeekVermoeg * 100 / weekSum[anzWeek]
     
     # umverteilung
-    obergrenze <<- round(weekMax[anzWeek] * obergrenzeProzent / 100.0) #default 50% des reichsten Vermögens
+    sortLastWeekVermoeg <<- sort(lastWeekVermoeg) # neu rna 20.3.2022
+    obergrenze <<- sortLastWeekVermoeg[trunc(obergrenzeProzent*anzSpieler/100)] # rna lorenzumv 2022-03-25
+    #    obergrenze <<- round(weekMedian[anzWeek] * obergrenzeProzent / 100.0) #default 100% des aktuellen Medians aller Vermögen
+    #    obergrenze <<- round(weekMax[anzWeek] * obergrenzeProzent / 100.0) #default 50% des reichsten Vermögens
+    message(glue("yearSim, obergrenze: {obergrenze}"))
     gesamtVermoegenAnf <<- sum(firstWeekVermoeg)
     gesamtVermoegenEnd <<- sum(lastWeekVermoeg)
 
@@ -163,11 +167,16 @@ server <- function(input, output, session) {
     } # end def setRvUmv
   
   rechneUmv <- function() {
-#    message(glue("rechneUmv anf, obergrenze: {obergrenze}"))
-    obergrenze = weekMax[anzWeek] * obergrenzeProzent / 100.0
+    #    obergrenze = weekMedian[anzWeek] * obergrenzeProzent / 100.0 # alter median
+    #    obergrenze = weekMax[anzWeek] * obergrenzeProzent / 100.0
+    #    obergrenze = weekMax[anzWeek] * obergrenzeProzent / 100.0
+    sortLastWeekVermoeg <<- sort(lastWeekVermoeg) # neu rna 20.3.2022
+    obergrenze <<- sortLastWeekVermoeg[trunc(obergrenzeProzent*anzSpieler/100)] # umvLorenz rna 2022-03-25
+    message(glue("rechneUmv anf, index: {trunc(obergrenzeProzent*anzSpieler/100)}, obergrenze: {obergrenze}"))
     abschoepf <<-
       ifelse(lastWeekVermoeg > obergrenze,
-             lastWeekVermoeg  * steuerProzent / 100.0,
+             #             lastWeekVermoeg  * steuerProzent / 100.0, # gesamtes Vermögen wird besteuert
+             (lastWeekVermoeg - obergrenze)  * steuerProzent / 100.0, # nur vom Betrag ober obergrenze 2022-03-20
              0.0)
     anteil <<- sum(abschoepf) / anzSpieler
     umverteilung <<- rep(anteil, anzSpieler)
@@ -181,7 +190,7 @@ server <- function(input, output, session) {
     anteilAermste50Umv <<- lorenzUmv$L[anzSpieler*0.5 +1]
     anteilAermste10Umv <<- lorenzUmv$L[anzSpieler*0.1 +1]
     anteilAermsterUmv <<- lorenzUmv$L[2]
-#    message(glue("rechneUmv end, giniUmv: {giniUmv}"))
+    message(glue("rechneUmv end, giniUmv: {giniUmv}"))
   }# end rechneUmv
   
   newStart <- function(startKap, mw, sd, addMw, addSd) {
@@ -285,7 +294,8 @@ server <- function(input, output, session) {
   }
   
   #### end of function defs
-
+  message(glue("start server init scalars"))
+  
   # scalars per session
   #  startKap <- 1.0
   lfdJahr <- 0
@@ -329,6 +339,7 @@ server <- function(input, output, session) {
   # state vectors last week
   firstWeekVermoeg <- vector(mode = "double", length = anzSpieler)
   lastWeekVermoeg <- firstWeekVermoeg
+  sortLastWeekVermoeg <- firstWeekVermoeg
   lastProzAnteil <- firstWeekVermoeg
   abschoepf <- firstWeekVermoeg
   umverteilung <- firstWeekVermoeg
@@ -350,6 +361,7 @@ server <- function(input, output, session) {
     lfdJahr = lfdJahr,
     firstWeekVermoeg = firstWeekVermoeg,
     lastWeekVermoeg = lastWeekVermoeg,
+    sortLastWeekVermoeg = sortLastWeekVermoeg,
     lastProzAnteil = lastProzAnteil,
     obergrenze = obergrenze,
     gesamtVermoegenAnf = gesamtVermoegenAnf,
@@ -436,34 +448,34 @@ server <- function(input, output, session) {
     message(glue("observeEvent input$rBwachstum end: {input$rBwachstum}"))
   })
   
-observeEvent(input$sliderObergrenze, {
+  observeEvent(input$sliderFreigrenzeProz, {
     # Slider Obergrenze der Verteilung
-    obergrenzeProzent <<- input$sliderObergrenze
+    obergrenzeProzent <<- max(0.1, input$sliderFreigrenzeProz) # darf nicht 0 sein
     steuerProzent <<- input$sliderSteuerprozent
     message(glue(
-      "observeEvent sliderObergrenze: {input$sliderObergrenze} anf, rv$giniUmv: {rv$giniUmv}"
+      "observeEvent sliderFreigrenzeProz anf, sliderVal: {input$sliderFreigrenzeProz}, obergrenzeProzent: {obergrenzeProzent}, rv$giniUmv: {rv$giniUmv}"
     ))
     rechneUmv()
     setRvUmv()
     message(glue(
-      "observeEvent sliderObergrenze: {input$sliderObergrenze} end, rv$giniUmv: {rv$giniUmv}"
+      "observeEvent sliderFreigrenzeProz: {input$sliderFreigrenzeProz} end, rv$giniUmv: {rv$giniUmv}"
     ))
   })
-
-observeEvent(input$sliderSteuerprozent, {
-  # Slider Obergrenze der Verteilung
-  steuerProzent <<- input$sliderSteuerprozent
-  obergrenzeProzent <<- input$sliderObergrenze
-  message(glue(
-    "observeEvent sliderSteuerprozent: {input$sliderSteuerprozent} anf, rv$giniUmv: {rv$giniUmv}"
-  ))
-  rechneUmv()
-  setRvUmv()
-  message(glue(
-    "observeEvent sliderSteuerprozent: {input$sliderSteuerprozent} end, rv$giniUmv: {rv$giniUmv}"
-  ))
-})
-
+  
+  observeEvent(input$sliderSteuerprozent, {
+    # Slider Obergrenze der Verteilung
+    steuerProzent <<- input$sliderSteuerprozent
+    obergrenzeProzent <<- max(0.1, input$sliderFreigrenzeProz) # darf nicht 0 sein
+    message(glue(
+      "observeEvent sliderSteuerprozent: {input$sliderSteuerprozent} anf, rv$giniUmv: {rv$giniUmv}"
+    ))
+    rechneUmv()
+    setRvUmv()
+    message(glue(
+      "observeEvent sliderSteuerprozent: {input$sliderSteuerprozent} end, rv$giniUmv: {rv$giniUmv}"
+    ))
+  })
+  
 observeEvent(input$sliderLeverage, {
   # Slider Leverage
   leverage <<- input$sliderLeverage / 100.0
@@ -488,8 +500,8 @@ observeEvent(input$sliderStartVermoeg, {
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth at the beginning of the current year")+ 
       lims(y = c(0,anzSpieler))+
-      stat_bin(bins=10, geom="text", colour="red", size=6.0,
-               aes(label=..count..), vjust=-0.2 )
+      stat_bin(bins=10, geom="text", colour="red", lwd=6.0,
+               aes(label=after_stat(count)), vjust=-0.2 )
   })
   
   output$outHistEnd <- renderPlot({
@@ -499,8 +511,8 @@ observeEvent(input$sliderStartVermoeg, {
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth at the end of the current year without redistribution")+ 
       lims(y = c(0,anzSpieler))+
-      stat_bin(bins=10, geom="text", colour="red", size=6.0,
-        aes(label=..count..), vjust=-0.2 )
+      stat_bin(bins=10, geom="text", colour="red", lwd=6.0,
+        aes(label=after_stat(count)), vjust=-0.2 )
   })
   
   output$outHistEnd2 <- renderPlot({
@@ -510,8 +522,8 @@ observeEvent(input$sliderStartVermoeg, {
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Wealth at the end of the current year")+ 
       lims(y = c(0,anzSpieler))+
-      stat_bin(bins=10, geom="text", colour="red", size=6.0,
-               aes(label=..count..), vjust=-0.2 )
+      stat_bin(bins=10, geom="text", colour="red", lwd=6.0,
+               aes(label=after_stat(count)), vjust=-0.2 )
   })
   
   output$outHistUmv <- renderPlot({
@@ -521,8 +533,8 @@ observeEvent(input$sliderStartVermoeg, {
       labs(y = "Number (red) of persons in wealth class", x = "Amount of wealth per class", 
            title = "Histogram of wealth after redistribution")+ 
       lims(y = c(0,anzSpieler))+
-      stat_bin(bins=10, geom="text", colour="red", size=6.0,
-               aes(label=..count..), vjust=-0.2 )
+      stat_bin(bins=10, geom="text", colour="red", lwd=6.0,
+               aes(label=after_stat(count)), vjust=-0.2 )
   })
   
   output$outPlotVerlauf <- renderPlot({

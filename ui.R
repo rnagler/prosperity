@@ -1,5 +1,5 @@
 # ~rnaR/prosperityShiny
-# Version 4 2022-02-09
+# Version 6 2023-01-29 eng
 ## ui.R ##
 library(shiny)
 library(shinydashboard)
@@ -41,10 +41,12 @@ ui <- dashboardPage(
           box(
             title = strong("Welcome"),
             width=8,
-            h2("Prosperity for everybody? Would be nice, but not without wealth tax!"),
-            "But most people don't want a wealth tax. ",
-            "Vaccination is is also rejected by some today. ", strong(" The cause? Incorrect information and lack of education!"), 
-            br(),"Unlike in the Corona chaos, here you find easily understandable practical facts:",
+            h2("Why do the Rich keep getting Richer?"),
+            "Why is inequality increasing all the time? Not only because some rich people shamelessly exploit their power and illegally gain advantages. ",
+            "But because ",strong(" wealth automatically accumulates with a few"), "as you will practically recognize here. ", 
+            br(), "Nevertheless, we do nothing against undeserved over-wealth. Poorly or misinformed, many people venerate wealth and admire affluent elites.",
+            br(), "Politicians refuse to take sensible countermeasures, out of hasty obedience to the elites or corruption or blackmail.", 
+            br(),"This website wants to inform and enables you to make your own practical experiences with interactive simulations:",
             tags$ul(
               tags$li("You can see from a practical example that inequality arises automatically,"), 
               tags$li("You're trying out what we could do about it,"), 
@@ -161,13 +163,39 @@ ui <- dashboardPage(
                   width = 8,
 #                  helpText(" in % des größten Vermögens"),
                   # set color of left slider bar
-                  setSliderColor(c("#00cccc", "#ff0000"), c(1,2)), #türkis erster, rot zweiter
-                  sliderInput(
-                    "sliderObergrenze",
-                    "Tax limit: From what percentage of the largest actual individual wealth should people pay wealth tax?",
-                    0,
-                    100,
-                    50
+                  setSliderColor(c("#008000", "#ff0000"), c(1, 2)),
+                  #grün erster, rot zweiter
+                  sliderTextInput(
+                    "sliderFreigrenzeProz",
+                    "Tax limit: Which percentage of the poorer people with less wealth should pay NO wealth tax?",
+                    choices = c(
+                      0,
+                      0.5,
+                      1,
+                      2,
+                      10,
+                      20,
+                      30,
+                      40,
+                      50,
+                      60,
+                      70,
+                      80,
+                      90,
+                      95,
+                      96,
+                      97,
+                      98,
+                      99,
+                      99.5,
+                      99.6,
+                      99.7,
+                      99.8,
+                      99.9,
+                      100
+                    ),
+                    selected = 80,
+                    grid = T
                   ),
                   p("Slider on the far left at 0 -> everyone pays tax, slider on the far right at 100 -> no one pays tax."),
 #                  helpText("Steuerprozentsatz"),
@@ -406,7 +434,7 @@ tabItem(tabName = "impressumTab",
             hr(),
             br(), h4("Nice Song, appropriate to the topic:"),
             "Everybody Knows, Leonard Cohen, 1988 (to play while viewing this website)",
-            br(), a(href = "https://www.youtube.com/watch?v=Lin-a2lTelg", "https://www.youtube.com/watch?v=Lin-a2lTelg", target="_blank"),
+            br(), a(href = "https://www.youtube.com/watch?v=xu8u9ZbCJgQ", "https://www.youtube.com/watch?v=xu8u9ZbCJgQ", target="_blank"),
             br(), br(), "Everybody knows that the dice are loaded",
             br(), "    Everybody rolls with their fingers crossed",
             br(), "    Everybody knows the war is over",
@@ -442,7 +470,8 @@ tabItem(tabName = "impressumTab",
 
     )
   ),
+message(glue("end ui")),
 footer = dashboardFooter(left = "Rupert Nagler",
-                         right = "(c) Information Design Institute, 2022")
+                         right = "(c) Information Design Institute, 2023")
 )
 # message(glue("end ui")) wenn das activ, dann wird ui nicht gefunden
